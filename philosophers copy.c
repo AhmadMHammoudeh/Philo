@@ -6,7 +6,7 @@
 /*   By: ahhammou <ahhammou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/10 20:26:22 by ahhammou          #+#    #+#             */
-/*   Updated: 2022/03/04 12:34:18 by ahhammou         ###   ########.fr       */
+/*   Updated: 2022/03/04 13:53:29 by ahhammou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,42 +149,39 @@ void *routine(t_data *philo)
 	// if (n_philo->philo->id == n_philo->total_philos)
 	// 	n_philo->philo->right_fork = n_philo->forks[1];
 	time = timestamp();
-	gettimeofday(&tv, NULL);
-	hms = tv.tv_sec % SEC_PER_DAY;
-	hms = (hms + SEC_PER_DAY) % SEC_PER_DAY;
-	int hour = hms / SEC_PER_HOUR;
-	int min = (hms % SEC_PER_HOUR) / SEC_PER_MIN;
-	int sec = (hms % SEC_PER_HOUR) % SEC_PER_MIN;
-	printf("Current local time: %d:%02d:%02d\n", hour + 4, min, sec);
-	printf("Time between meals: %lld\n", philo->time_ate);
-	if (philo->locks)
-		printf("dsa\n");
-	printf("time->die%d\n", philo->locks->time_die);
-
-	// while (1)
-	// {
-	// 	if (p->locks->flag == 1)
-	// 		return(NULL);
-	// 	if ((timestamp() - p->time_ate) <= p->locks->time_die)
-	// 	{
-	// 		if (pthread_mutex_lock(&n_philo->philo[id].right_fork) && pthread_mutex_lock(&n_philo->philo[id].left_fork))
-	// 		{
-	// 			printf("Philo[%d] Picked t \n", n_philo->philo[id].id);
-	// 			n_philo->philo->ate++;
-	// 			printf("Philo[%d] is eating \n zeft->ate = %d\n", n_philo->philo[id].id, n_philo->philo->ate);
-	// 			n_philo->philo[id].time_ate = timestamp();
-	// 			// printf("left fork: %d, right fork: %d\n", n_philo->philo->left_fork, n_philo->philo->right_fork);
-	// 			ft_usleep(n_philo[id].time_2eat);
-	// 			printf("Philo[%d] is Sleeping \n", n_philo->philo[id].id);
-	// 			pthread_mutex_unlock(&n_philo->philo[id].right_fork);
-	// 			pthread_mutex_unlock(&n_philo->philo[id].left_fork);
-	// 			ft_usleep(n_philo->time_sleep);
-	// 		}
-	// 	}
-	// 	else
-	// 		n_philo->flag = 1;
-	// }
-	// // pthread_mutex_unlock(&zeft->forks[zeft->id]);
+	while (1)
+	{
+		if (philo->locks->flag == 1)
+			return(NULL);
+		gettimeofday(&tv, NULL);
+		hms = tv.tv_sec % SEC_PER_DAY;
+		hms = (hms + SEC_PER_DAY) % SEC_PER_DAY;
+		int hour = hms / SEC_PER_HOUR;
+		int min = (hms % SEC_PER_HOUR) / SEC_PER_MIN;
+		int sec = (hms % SEC_PER_HOUR) % SEC_PER_MIN;
+		printf("Current local time: %d:%02d:%02d\n", hour + 4, min, sec);
+		printf("Time between meals: %lld\n", philo->time_ate);
+		printf("time->die%d\n", philo->locks->time_die);
+		if ((timestamp() - philo->time_ate) <= philo->locks->time_die)
+		{
+			if (pthread_mutex_lock(&philo->right_fork) && pthread_mutex_lock(&philo->left_fork))
+			{
+				printf("Philo[%d] Picked t \n", philo->id);
+				philo->ate++;
+				printf("Philo[%d] is eating \n zeft->ate = %d\n", philo->id, philo->ate);
+				philo->time_ate = timestamp();
+				// printf("left fork: %d, right fork: %d\n", n_philo->philo->left_fork, n_philo->philo->right_fork);
+				ft_usleep(philo->locks->time_2eat);
+				printf("Philo[%d] is Sleeping \n", philo->id);
+				pthread_mutex_unlock(&philo->right_fork);
+				pthread_mutex_unlock(&philo->left_fork);
+				ft_usleep(philo->locks->time_sleep);
+			}
+		}
+		else
+			philo->locks->flag = 1;
+	}
+	// pthread_mutex_unlock(&zeft->forks[zeft->id]);
 	return (0);
 }
 
