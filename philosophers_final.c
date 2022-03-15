@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philosophers copy.c                                :+:      :+:    :+:   */
+/*   philosophers_final.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ahhammou <ahhammou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/10 20:26:22 by ahhammou          #+#    #+#             */
-/*   Updated: 2022/03/11 19:01:24 by ahhammou         ###   ########.fr       */
+/*   Updated: 2022/03/14 16:32:32 by ahhammou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,77 +94,27 @@ void	ft_usleep(long long sleep)
 	}
 }
 
-int printer(t_data *philo, char *arg)
+int printer(t_data *philo, char *arg, char *arg2)
 {
 	if (philo->locks->flag == 1)
 		return (0);
-	printf("%lld", philo->timestamp);
-	printf("%s\n", arg);
+	printf("%lld ", philo->timestamp);
+	printf("%s", arg);
+	printf("[%d]", philo->p_id);
+	printf("%s\n", arg2);
 	return (1);
 }
-// void *routine(void *philo)
-// {
-// 	struct timeval tv;
-// 	t_test *n_philo;
-// 	t_data *p;
-// 	int i;
-// 	long long time;
-// 	long hms;
-// 	int id;
-
-// 	i = 0;
-// 	n_philo = (t_test *)philo;
-// 	// pthread_mutex_lock(&zeft->forks[zeft->id]);
-// 	// n_philo->philo->right_fork = n_philo->forks[n_philo->philo->id + 1];
-// 	// n_philo->philo->left_fork = n_philo->forks[n_philo->philo->id];
-// 	// if (n_philo->philo->id == n_philo->total_philos)
-// 	// 	n_philo->philo->right_fork = n_philo->forks[1];
-// 	time = timestamp();
-// 	gettimeofday(&tv, NULL);
-// 	hms = tv.tv_sec % SEC_PER_DAY;
-// 	hms = (hms + SEC_PER_DAY) % SEC_PER_DAY;
-// 	int hour = hms / SEC_PER_HOUR;
-// 	int min = (hms % SEC_PER_HOUR) / SEC_PER_MIN;
-// 	int sec = (hms % SEC_PER_HOUR) % SEC_PER_MIN;
-// 	printf("Current local time: %d:%02d:%02d\n", hour + 4, min, sec);
-// 	printf("Time between meals: %lld\n", n_philo->philo->time_ate);
-// 	printf("Time to die: %d\n", n_philo->time_die);
-// 	id = n_philo->id;
-// 	while (1)
-// 	{
-// 		if (n_philo->flag == 1)
-// 			return(NULL);
-// 		if ((timestamp() - n_philo->philo[id].time_ate) <= n_philo->time_die)
-// 		{
-// 			if (pthread_mutex_lock(&n_philo->philo[id].right_fork) && pthread_mutex_lock(&n_philo->philo[id].left_fork))
-// 			{
-// 				printf("Philo[%d] Picked t \n", n_philo->philo[id].id);
-// 				n_philo->philo->ate++;
-// 				printf("Philo[%d] is eating \n zeft->ate = %d\n", n_philo->philo[id].id, n_philo->philo->ate);
-// 				n_philo->philo[id].time_ate = timestamp();
-// 				// printf("left fork: %d, right fork: %d\n", n_philo->philo->left_fork, n_philo->philo->right_fork);
-// 				ft_usleep(n_philo[id].time_2eat);
-// 				printf("Philo[%d] is Sleeping \n", n_philo->philo[id].id);
-// 				pthread_mutex_unlock(&n_philo->philo[id].right_fork);
-// 				pthread_mutex_unlock(&n_philo->philo[id].left_fork);
-// 				ft_usleep(n_philo->time_sleep);
-// 			}
-// 		}
-// 		else
-// 			n_philo->flag = 1;
-// 	}
-// 	// pthread_mutex_unlock(&zeft->forks[zeft->id]);
-// 	return (0);
-// }
 
 void philo_eat(t_data *philo)
 {
 		pthread_mutex_unlock(philo->right_fork);
 		pthread_mutex_unlock(philo->left_fork);
 		pthread_mutex_lock(&philo->locks->philos);
-		printf("Philo[%d] has both forks \n", philo->p_id);
+		// printf("Philo[%d] has both forks \n", philo->p_id);
+		printer(philo,"Philo" ,"has both forks");
 		philo->locks->total_eat++;
-		printf("Philo[%d] is eating zeft->ate = %d\n", philo->id, philo->locks->total_eat);
+		// printf("Philo[%d] is eating zeft->ate = %d\n", philo->p_id, philo->locks->total_eat);
+		printer(philo,"Philo" ,"is eating");
 		philo->ate++;
 		printf("Philo[%d] ate [%d] times \n", philo->p_id, philo->ate);
 		if (philo->ate == philo->locks->min_eater)
@@ -181,34 +131,10 @@ void philo_eat(t_data *philo)
 			philo->locks->fork_state[philo->right] = 0;
 			philo->r_f = 0;
 			philo->l_f = 0;
-			// printer("Philo[%d] has dropped both forks \n", philo->p_id);
-			printer(philo,"Philo[%d] has dropped both forks \n");
+			printer(philo,"Philo" ,"has dropped both forks");
 		}
 }
 
-// void fork_pick(t_data *philo)
-// {
-// 	long long stamp;
-
-// 	stamp = timestamp() - philo->locks->time_start;
-// 	philo->last_action = 1;
-// 	if (philo->locks->fork_state[philo->id] == 0)
-// 	{
-// 		philo->locks->fork_state[philo->id] = 1;
-// 		philo->l_f = 1;
-// 		printf("%lld Philo[%d] Picked left fork \n", stamp, philo->id);
-// 	}
-// 	if (philo->locks->fork_state[philo->right] == 0)
-// 	{
-// 		philo->locks->fork_state[philo->right] = 1;
-// 		philo->r_f = 1;
-// 		printf("%lld Philo[%d] Picked right fork \n", stamp, philo->id);
-// 	}
-// 	if (philo->r_f == 1 && philo->l_f == 1)
-// 	{
-// 		philo_eat(philo);
-// 	}
-// }
 void *fork_pick(t_data *philo)
 {
 	long long stamp;
@@ -219,19 +145,21 @@ void *fork_pick(t_data *philo)
 	{
 		philo->locks->fork_state[philo->id] = 1;
 		philo->l_f = 1;
-		printf("%lld Philo[%d] Picked left fork \n", philo->timestamp, philo->p_id);}
+		// printf("%lld Philo[%d] Picked left fork \n", philo->timestamp, philo->p_id);
+		printer(philo,"Philo" ,"Picked left fork");
+		}
 	if (philo->locks->fork_state[philo->right] == 0 && philo->r_f == 0)
 		{philo->locks->fork_state[philo->right] = 1;
 		philo->r_f = 1;
-		printf("%lld Philo[%d] Picked right fork \n", philo->timestamp, philo->id);}
+		// printf("%lld Philo[%d] Picked right fork \n", philo->timestamp, philo->p_id);
+		printer(philo,"Philo" ,"Picked right fork");
+		}
 	if (philo->r_f == 1 && philo->l_f == 1)
 	{
 		philo_eat(philo);
 	}
 	return (NULL);
 }
-
-
 
 void *routine(t_data *philo)
 {
@@ -259,52 +187,32 @@ void *routine(t_data *philo)
 		}
 		else
 		{
-				philo->locks->flag = 1;
-				printf("PHILO [%d] HAS DEID\n", philo->id);
+			philo->locks->flag = 1;
+			printer(philo,"Philo" ,"HAS DIED");
+			// printf("PHILO [%d] HAS DEID\n", philo->p_id);
 		}
-		usleep(10);
+		// usleep(10);
 		if (philo->last_action == 0)
 		{
-			printf("Philo[%d] is Sleeping \n", philo->id);
+			printf("Philo[%d] is Sleeping \n", philo->p_id);
 			ft_usleep(philo->locks->time_sleep);
 			philo->last_action = 2;
 		}		
-		// if (philo->last_action == 1)
-		// {
-		// 	printf("I am thinking Philo[%d]\n", philo->id);
-		// 	philo->last_action = 1;
-		// }
+		if (philo->last_action == 2)
+		{
+			printf("I am thinking Philo[%d]\n", philo->p_id);
+			philo->last_action = 3;
+		}
 	}
-	// pthread_mutex_unlock(&zeft->forks[zeft->id]);
 	return (0);
 }
 
 void	*call_function(void *philo)
 {
+	// usleep(10);
 	routine(philo);
 	return (NULL);
 }
-// void eat_sleep_rave_repeat(t_data *zeft, int i)
-// {
-// 	struct timeval	ts;
-
-// 	printf("Time between meals: %lld\n", timestamp() - zeft->time_ate);
-// 	printf("Philo[%d] Picked t \n", i);
-// 	if ((timestamp() - zeft->time_ate) <= 10000)
-// 	{
-// 		pthread_mutex_lock(&zeft->forks[zeft->id]);
-// 		zeft->ate++;
-// 		printf("Philo[%d] is eating \n zeft->ate = %d\n", i, zeft->ate);
-// 		zeft->time_ate = timestamp();
-// 		ft_usleep(100);
-// 		printf("left fork: %d, right fork: %d\n", zeft->left_fork, zeft->right_fork);
-// 		pthread_mutex_unlock(&zeft->forks[zeft->id]);
-// 	}
-// 	else
-// 		// zeft->flag = 1;
-// 	printf("Philo[%d] is Sleeping \n", i);
-// 	ft_usleep(zeft->time_sleep);
-// }
 
 void ft_exit(t_test *test)
 {
