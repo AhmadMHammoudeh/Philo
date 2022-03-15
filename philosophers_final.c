@@ -6,7 +6,7 @@
 /*   By: ahhammou <ahhammou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/10 20:26:22 by ahhammou          #+#    #+#             */
-/*   Updated: 2022/03/14 16:32:32 by ahhammou         ###   ########.fr       */
+/*   Updated: 2022/03/15 12:10:35 by ahhammou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ typedef struct s_data{
 typedef struct s_test{
 	pthread_mutex_t *forks;
 	pthread_mutex_t philos;
+	pthread_mutex_t print;
 	int *fork_state;
 	int total_philos;
 	int time_sleep;
@@ -96,30 +97,29 @@ void	ft_usleep(long long sleep)
 
 int printer(t_data *philo, char *arg, char *arg2)
 {
+	usleep(1);
 	if (philo->locks->flag == 1)
 		return (0);
+	pthread_mutex_lock(&philo->locks->print);
 	printf("%lld ", philo->timestamp);
 	printf("%s", arg);
 	printf("[%d]", philo->p_id);
 	printf("%s\n", arg2);
+	pthread_mutex_unlock(&philo->locks->print);
 	return (1);
 }
 
 void philo_eat(t_data *philo)
 {
-		pthread_mutex_unlock(philo->right_fork);
-		pthread_mutex_unlock(philo->left_fork);
-		pthread_mutex_lock(&philo->locks->philos);
-		// printf("Philo[%d] has both forks \n", philo->p_id);
 		printer(philo,"Philo" ,"has both forks");
+		pthread_mutex_lock(&philo->locks->philos);
 		philo->locks->total_eat++;
-		// printf("Philo[%d] is eating zeft->ate = %d\n", philo->p_id, philo->locks->total_eat);
-		printer(philo,"Philo" ,"is eating");
-		philo->ate++;
-		printf("Philo[%d] ate [%d] times \n", philo->p_id, philo->ate);
 		if (philo->ate == philo->locks->min_eater)
 			philo->locks->min_achive++;
 		pthread_mutex_unlock(&philo->locks->philos);
+		// printf("Philo[%d] ate [%d] times \n", philo->p_id, philo->ate);
+		printer(philo,"Philo" ,"is eating");
+		philo->ate++;
 		philo->time_ate = timestamp();
 		ft_usleep(philo->locks->time_2eat);
 		philo->last_action = 0;
@@ -133,6 +133,8 @@ void philo_eat(t_data *philo)
 			philo->l_f = 0;
 			printer(philo,"Philo" ,"has dropped both forks");
 		}
+		pthread_mutex_unlock(philo->right_fork);
+		pthread_mutex_unlock(philo->left_fork);
 }
 
 void *fork_pick(t_data *philo)
@@ -141,6 +143,8 @@ void *fork_pick(t_data *philo)
 
 	philo->timestamp = timestamp() - philo->timestart;
 	philo->last_action = 1;
+	pthread_mutex_lock(philo->right_fork);
+	pthread_mutex_lock(philo->left_fork);
 	if (philo->locks->fork_state[philo->id] == 0)
 	{
 		philo->locks->fork_state[philo->id] = 1;
@@ -154,6 +158,8 @@ void *fork_pick(t_data *philo)
 		// printf("%lld Philo[%d] Picked right fork \n", philo->timestamp, philo->p_id);
 		printer(philo,"Philo" ,"Picked right fork");
 		}
+	pthread_mutex_unlock(philo->right_fork);
+	pthread_mutex_unlock(philo->left_fork);
 	if (philo->r_f == 1 && philo->l_f == 1)
 	{
 		philo_eat(philo);
@@ -181,26 +187,35 @@ void *routine(t_data *philo)
 			pthread_mutex_lock(philo->right_fork);
 			pthread_mutex_lock(philo->left_fork);
 			if (philo->locks->fork_state[philo->id] == 0 || philo->locks->fork_state[philo->right] == 0)
+			{
+				pthread_mutex_unlock(philo->right_fork);
+				pthread_mutex_unlock(philo->left_fork);
 				fork_pick(philo);
-			pthread_mutex_unlock(philo->right_fork);
-			pthread_mutex_unlock(philo->left_fork);
+			}
+			else
+			{
+				pthread_mutex_unlock(philo->right_fork);
+				pthread_mutex_unlock(philo->left_fork);
+			}
 		}
 		else
 		{
 			philo->locks->flag = 1;
-			printer(philo,"Philo" ,"HAS DIED");
-			// printf("PHILO [%d] HAS DEID\n", philo->p_id);
+			// printer(philo,"Philo" ,"HAS DIED");
+			printf("PHILO [%d] HAS DEID\n", philo->p_id);
 		}
-		// usleep(10);
+		usleep(10);
 		if (philo->last_action == 0)
 		{
-			printf("Philo[%d] is Sleeping \n", philo->p_id);
+			// printf("Philo[%d] is Sleeping \n", philo->p_id);
+			printer(philo,"Philo" ,"is sleeping");
 			ft_usleep(philo->locks->time_sleep);
 			philo->last_action = 2;
 		}		
 		if (philo->last_action == 2)
 		{
-			printf("I am thinking Philo[%d]\n", philo->p_id);
+			printer(philo,"Philo" ,"is thinking");
+			// printf("I am thinking Philo[%d]\n", philo->p_id);
 			philo->last_action = 3;
 		}
 	}
@@ -244,7 +259,6 @@ int main(int argv, char **argc)
 	test->time_sleep = atoi(argc[4]);
 	test->time_die = atoi(argc[2]);
 	test->time_start = timestamp();
-	printf("%lld time \n", test->time_start);
 	test->time_2eat = atoi(argc[3]);
 	test->flag = 0;
 	test->min_achive = 0;
@@ -257,7 +271,8 @@ int main(int argv, char **argc)
 	test->philo = malloc(sizeof(t_data) * test->total_philos);
 	test->forks = malloc(sizeof(pthread_mutex_t) * test->total_philos);
 	test->fork_state = malloc(sizeof(int) * test->total_philos);
-	// test->forks = malloc(sizeof(pthread_mutex_t) * test->total_philos);
+	pthread_mutex_init(&test->print, NULL);
+	pthread_mutex_init(&test->philos, NULL);
 	while (i < test->total_philos + 1)
 	{
 		pthread_mutex_init(&test->philo[i].phils, NULL);
@@ -268,10 +283,8 @@ int main(int argv, char **argc)
 		test->fork_state[i - 1] = 0;
 		test->philo[i].id = i - 1;
 		test->philo[i].p_id = i;
-		printf("%d\n", test->philo[i].id);
 		test->philo[i].last_action = 1;
 		test->philo[i].locks = test;
-		printf("Time of creation: %lld\n", timestamp());
 		test->philo[i].left_fork = &test->forks[i - 1];
 		test->philo[i].right_fork = &test->forks[i];
 		test->philo[i].right = i;
@@ -281,7 +294,6 @@ int main(int argv, char **argc)
 			test->philo[i].right_fork = &test->forks[0];
 		}
 		pthread_mutex_init(test->philo[i].left_fork, NULL);
-		printf("time->die%d\n", test->time_die);
 		pthread_create(&test->philo[i].t1, NULL, &call_function, (void *)&test->philo[i]);
 		i++;
 	}
