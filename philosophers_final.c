@@ -6,7 +6,7 @@
 /*   By: ahhammou <ahhammou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/10 20:26:22 by ahhammou          #+#    #+#             */
-/*   Updated: 2022/03/15 12:10:35 by ahhammou         ###   ########.fr       */
+/*   Updated: 2022/04/06 16:18:14 by ahhammou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,7 +202,7 @@ void *routine(t_data *philo)
 		{
 			philo->locks->flag = 1;
 			// printer(philo,"Philo" ,"HAS DIED");
-			printf("PHILO [%d] HAS DEID\n", philo->p_id);
+			printf("%lld PHILO [%d] HAS DEID\n", timestamp() - philo->timestart,philo->p_id);
 		}
 		usleep(10);
 		if (philo->last_action == 0)
@@ -228,7 +228,6 @@ void	*call_function(void *philo)
 	routine(philo);
 	return (NULL);
 }
-
 void ft_exit(t_test *test)
 {
 	int i;
@@ -248,13 +247,44 @@ void ft_exit(t_test *test)
 	}
 }
 
+void	one_lonely_guy(t_test *test)
+{
+	printf("0 Philo[1]Picked left fork\n");
+	ft_usleep(test->time_die);
+	printf("%d PHILO [1] HAS DEID\n", test->time_die);
+}
+
+void initing(t_test *test, int i)
+{
+pthread_mutex_init(&test->philo[i].phils, NULL);
+		test->philo[i].ate = 0;
+		test->philo[i].timestamp = 0;
+		test->philo[i].r_f = 0;
+		test->philo[i].l_f = 0;
+		test->fork_state[i] = 0;
+		test->philo[i].id = i;
+		test->philo[i].p_id = i + 1;
+		test->philo[i].last_action = 1;
+		test->philo[i].locks = test;
+		test->philo[i].left_fork = &test->forks[i];
+		test->philo[i].right_fork = &test->forks[i + 1];
+		test->philo[i].right = i + 1;
+		if (i == test->total_philos)
+		{
+			test->philo[i].right = 0;
+			test->philo[i].right_fork = &test->forks[0];
+		}
+		pthread_mutex_init(test->philo[i].left_fork, NULL);
+		pthread_create(&test->philo[i].t1, NULL, &call_function, (void *)&test->philo[i]);
+}
+
 int main(int argv, char **argc)
 {
 	t_test *test;
 	int i;
 	struct timeval t;
 
-	i = 1;
+	i = 0;
 	test = malloc(sizeof(t_test) * 1);
 	test->time_sleep = atoi(argc[4]);
 	test->time_die = atoi(argc[2]);
@@ -273,32 +303,18 @@ int main(int argv, char **argc)
 	test->fork_state = malloc(sizeof(int) * test->total_philos);
 	pthread_mutex_init(&test->print, NULL);
 	pthread_mutex_init(&test->philos, NULL);
-	while (i < test->total_philos + 1)
+	if (test->total_philos == 1)
 	{
-		pthread_mutex_init(&test->philo[i].phils, NULL);
-		test->philo[i].ate = 0;
-		test->philo[i].timestamp = 0;
-		test->philo[i].r_f = 0;
-		test->philo[i].l_f = 0;
-		test->fork_state[i - 1] = 0;
-		test->philo[i].id = i - 1;
-		test->philo[i].p_id = i;
-		test->philo[i].last_action = 1;
-		test->philo[i].locks = test;
-		test->philo[i].left_fork = &test->forks[i - 1];
-		test->philo[i].right_fork = &test->forks[i];
-		test->philo[i].right = i;
-		if (i == test->total_philos)
-		{
-			test->philo[i].right = 0;
-			test->philo[i].right_fork = &test->forks[0];
-		}
-		pthread_mutex_init(test->philo[i].left_fork, NULL);
-		pthread_create(&test->philo[i].t1, NULL, &call_function, (void *)&test->philo[i]);
+		one_lonely_guy(test);
+		return (0);
+	}
+	while (i < test->total_philos)
+	{
+		initing(test, i);
 		i++;
 	}
-	i = 1;
-	while (i <= test->total_philos)
+	i = 0;
+	while (i < test->total_philos)
 	{
 		pthread_join(test->philo[i].t1, NULL);
 		usleep(5);
@@ -306,6 +322,6 @@ int main(int argv, char **argc)
 			break ;
 		i++;
 	}
-	ft_exit(test);
+	// ft_exit(test);
 	return (0);
 }
