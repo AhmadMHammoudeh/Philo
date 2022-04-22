@@ -45,6 +45,7 @@ typedef struct s_test{
 	pthread_mutex_t *forks;
 	pthread_mutex_t philos;
 	pthread_mutex_t print;
+	pthread_mutex_t lock;
 	pthread_t *t1;
 	int *fork_state;
 	int total_philos;
@@ -98,7 +99,6 @@ void	ft_usleep(long long sleep)
 
 int printer(t_data *philo, char *arg, char *arg2)
 {
-	philo->timestamp = timestamp() - philo->timestart;
 	// usleep(1);
 	pthread_mutex_lock(&philo->locks->print);
 	if (philo->locks->flag == 1)
@@ -106,6 +106,7 @@ int printer(t_data *philo, char *arg, char *arg2)
 		pthread_mutex_unlock(&philo->locks->print);	
 		return (0);
 	}
+	philo->timestamp = timestamp() - philo->timestart;
 	printf("%lld ", philo->timestamp);
 	printf("%s", arg);
 	printf("[%d]", philo->p_id);
@@ -125,6 +126,7 @@ void philo_eat(t_data *philo)
 		// printf("Philo[%d] ate [%d] times \n", philo->p_id, philo->ate);
 		printer(philo,"Philo" ,"is eating");
 		philo->ate++;
+		philo->timestamp = timestamp() - philo->timestart;
 		philo->time_ate = timestamp();
 		ft_usleep(philo->locks->time_2eat);
 		philo->last_action = 0;
@@ -151,6 +153,7 @@ void philo_eat_last(t_data *philo)
 			philo->locks->min_achive++;
 		pthread_mutex_unlock(&philo->locks->philos);
 		// printf("Philo[%d] ate [%d] times \n", philo->p_id, philo->ate);
+		philo->timestamp = timestamp() - philo->timestart;
 		printer(philo,"Philo" ,"is eating");
 		philo->ate++;
 		philo->time_ate = timestamp();
@@ -238,19 +241,19 @@ void *routine(t_data *philo)
 	i = 0;
 	philo->time_ate = timestamp();
 	philo->timestart = timestamp();
-	if ((philo->id % 2) == 1)
+	if (!(philo->id % 2))
 		usleep(10);
 	if (philo->p_id != philo->locks->total_philos)
 	{
 		while (1)
 		{
-			pthread_mutex_lock(&philo->locks->print);
+			pthread_mutex_lock(&philo->locks->lock);
 			if (philo->locks->flag == 1 || philo->locks->min_achive == philo->locks->total_philos)
 			{
-				pthread_mutex_unlock(&philo->locks->print);	
+				pthread_mutex_unlock(&philo->locks->lock);	
 				return (NULL);
 			}
-			pthread_mutex_unlock(&philo->locks->print);	
+			pthread_mutex_unlock(&philo->locks->lock);	
 			if ((timestamp() - philo->time_ate) <= philo->locks->time_die)
 			{
 				pthread_mutex_lock(philo->left_fork);
@@ -267,9 +270,9 @@ void *routine(t_data *philo)
 			}
 			else
 			{
-				pthread_mutex_lock(&philo->locks->print);
+				pthread_mutex_lock(&philo->locks->lock);
 				philo->locks->flag = 1;
-				pthread_mutex_unlock(&philo->locks->print);	
+				pthread_mutex_unlock(&philo->locks->lock);	
 				// printer(philo,"Philo" ,"HAS DIED");
 				printf("%lld PHILO [%d] HAS DEID\n", timestamp() - philo->timestart,philo->p_id);
 				return (0);
@@ -278,12 +281,14 @@ void *routine(t_data *philo)
 			if (philo->last_action == 0)
 			{
 				// printf("Philo[%d] is Sleeping \n", philo->p_id);
+				philo->timestamp = timestamp() - philo->timestart;
 				printer(philo,"Philo" ,"is sleeping");
 				ft_usleep(philo->locks->time_sleep);
 				philo->last_action = 2;
 			}		
 			if (philo->last_action == 2)
 			{
+				philo->timestamp = timestamp() - philo->timestart;
 				printer(philo,"Philo" ,"is thinking");
 				// printf("I am thinking Philo[%d]\n", philo->p_id);
 				philo->last_action = 3;
@@ -293,13 +298,13 @@ void *routine(t_data *philo)
 	else
 	{	while (1)
 		{
-			pthread_mutex_lock(&philo->locks->print);
+			pthread_mutex_lock(&philo->locks->lock);
 			if (philo->locks->flag == 1 || philo->locks->min_achive == philo->locks->total_philos)
 			{
-				pthread_mutex_unlock(&philo->locks->print);	
+				pthread_mutex_unlock(&philo->locks->lock);	
 				return (NULL);
 			}
-			pthread_mutex_unlock(&philo->locks->print);	
+			pthread_mutex_unlock(&philo->locks->lock);	
 			if ((timestamp() - philo->time_ate) <= philo->locks->time_die)
 			{
 				pthread_mutex_lock(philo->right_fork);
@@ -316,9 +321,9 @@ void *routine(t_data *philo)
 			}
 			else
 			{
-				pthread_mutex_lock(&philo->locks->print);
+				pthread_mutex_lock(&philo->locks->lock);
 				philo->locks->flag = 1;
-				pthread_mutex_unlock(&philo->locks->print);	
+				pthread_mutex_unlock(&philo->locks->lock);	
 				// printer(philo,"Philo" ,"HAS DIED");
 				printf("%lld PHILO [%d] HAS DEID\n", timestamp() - philo->timestart,philo->p_id);
 				return (0);
@@ -327,12 +332,14 @@ void *routine(t_data *philo)
 			if (philo->last_action == 0)
 			{
 				// printf("Philo[%d] is Sleeping \n", philo->p_id);
+				philo->timestamp = timestamp() - philo->timestart;
 				printer(philo,"Philo" ,"is sleeping");
 				ft_usleep(philo->locks->time_sleep);
 				philo->last_action = 2;
 			}		
 			if (philo->last_action == 2)
 			{
+				philo->timestamp = timestamp() - philo->timestart;
 				printer(philo,"Philo" ,"is thinking");
 				// printf("I am thinking Philo[%d]\n", philo->p_id);
 				philo->last_action = 3;
@@ -372,6 +379,7 @@ void ft_exit(t_test *test)
 	pthread_mutex_destroy(&test->print);
 	// pthread_mutex_unlock(&test->philos);	
 	pthread_mutex_destroy(&test->philos);
+	pthread_mutex_destroy(&test->lock);
 }
 
 void	one_lonely_guy(t_test *test)
@@ -431,6 +439,7 @@ int main(int argv, char **argc)
 	test->fork_state = malloc(sizeof(int) * test->total_philos);
 	pthread_mutex_init(&test->print, NULL);
 	pthread_mutex_init(&test->philos, NULL);
+	pthread_mutex_init(&test->lock, NULL);
 	if (test->total_philos == 1)
 	{
 		one_lonely_guy(test);
