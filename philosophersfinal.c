@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philosophers_final.c                               :+:      :+:    :+:   */
+/*   philosophersfinal.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ahhammou <ahhammou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ahhammou <ahhammou@student.42abudhabi.a    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/10 20:26:22 by ahhammou          #+#    #+#             */
-/*   Updated: 2022/04/16 13:47:15 by ahhammou         ###   ########.fr       */
+/*   Updated: 2022/04/26 10:54:31 by ahhammou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,11 +101,14 @@ int printer(t_data *philo, char *arg, char *arg2)
 {
 	// usleep(1);
 	pthread_mutex_lock(&philo->locks->print);
+	pthread_mutex_lock(&philo->locks->lock);
 	if (philo->locks->flag == 1)
 	{
-		pthread_mutex_unlock(&philo->locks->print);	
+		pthread_mutex_unlock(&philo->locks->print);
+		pthread_mutex_unlock(&philo->locks->lock);
 		return (0);
 	}
+	pthread_mutex_unlock(&philo->locks->lock);
 	philo->timestamp = timestamp() - philo->timestart;
 	printf("%lld ", philo->timestamp);
 	printf("%s", arg);
