@@ -6,7 +6,7 @@
 /*   By: ahhammou <ahhammou@student.42abudhabi.a    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/25 21:19:43 by ahhammou          #+#    #+#             */
-/*   Updated: 2022/04/26 11:21:12 by ahhammou         ###   ########.fr       */
+/*   Updated: 2022/04/26 21:13:32 by ahhammou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,11 +70,8 @@ void	philo_eat_last(t_data *philo)
 	pthread_mutex_unlock(philo->left_fork);
 }
 
-void	*fork_pick(t_data *philo)
+void	fork_pick(t_data *philo)
 {
-	long long	stamp;
-
-	philo->timestamp = timestamp() - philo->timestart;
 	philo->last_action = 1;
 	pthread_mutex_lock(&philo->locks->lock);
 	if (philo->locks->fork_state[philo->id] == 0 && philo->l_f == 0)
@@ -100,14 +97,10 @@ void	*fork_pick(t_data *philo)
 	pthread_mutex_unlock(philo->right_fork);
 	if (philo->r_f == 1 && philo->l_f == 1)
 		philo_eat(philo);
-	return (NULL);
 }
 
-void	*fork_pick_last(t_data *philo)
+void	fork_pick_last(t_data *philo)
 {
-	long long	stamp;
-
-	philo->timestamp = timestamp() - philo->timestart;
 	philo->last_action = 1;
 	pthread_mutex_lock(&philo->locks->lock);
 	if (philo->locks->fork_state[philo->id] == 0 && philo->l_f == 0)
@@ -133,5 +126,4 @@ void	*fork_pick_last(t_data *philo)
 	pthread_mutex_unlock(philo->left_fork);
 	if (philo->r_f == 1 && philo->l_f == 1)
 		philo_eat_last(philo);
-	return (NULL);
 }

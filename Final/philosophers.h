@@ -6,7 +6,7 @@
 /*   By: ahhammou <ahhammou@student.42abudhabi.a    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/25 21:07:08 by ahhammou          #+#    #+#             */
-/*   Updated: 2022/04/26 20:59:20 by ahhammou         ###   ########.fr       */
+/*   Updated: 2022/04/26 21:13:13 by ahhammou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,8 @@ void		ft_usleep(long long sleep);
 int			printer(t_data *philo, char *arg, char *arg2);
 void		philo_eat(t_data *philo);
 void		philo_eat_last(t_data *philo);
-void		*fork_pick(t_data *philo);
-void		*fork_pick_last(t_data *philo);
+void		fork_pick(t_data *philo);
+void		fork_pick_last(t_data *philo);
 void		*routine(t_data *philo);
 void		*call_function(void *philo);
 void		ft_exit(t_test *test);
