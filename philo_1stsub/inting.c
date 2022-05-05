@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   inting.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ahhammou <ahhammou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ahhammou <ahhammou@student.42abudhabi.a    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/25 21:23:42 by ahhammou          #+#    #+#             */
-/*   Updated: 2022/04/28 14:37:42 by ahhammou         ###   ########.fr       */
+/*   Updated: 2022/05/05 06:23:55 by ahhammou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void	ft_exit(t_test *test)
 int	one_lonely_guy(t_test *test)
 {
 	printf("0 Philo[1]Picked left fork\n");
-	ft_usleep(test->time_die);
+	ft_usleep_one(test->time_die);
 	printf("%d PHILO [1] HAS DEID\n", test->time_die);
 	return (-1);
 }

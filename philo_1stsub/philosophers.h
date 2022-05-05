@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philosophers.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ahhammou <ahhammou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ahhammou <ahhammou@student.42abudhabi.a    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/25 21:07:08 by ahhammou          #+#    #+#             */
-/*   Updated: 2022/04/27 03:14:45 by ahhammou         ###   ########.fr       */
+/*   Updated: 2022/05/05 06:23:39 by ahhammou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,8 @@ typedef struct s_test{
 
 long		ft_atoi(char *s, t_test *numb);
 long long	timestamp(void);
-void		ft_usleep(long long sleep);
+void		ft_usleep(long long sleep, t_data *philo);
+void		ft_usleep_one(long long sleep);
 int			printer(t_data *philo, char *arg, char *arg2);
 void		philo_eat(t_data *philo);
 void		philo_eat_last(t_data *philo);
