@@ -1,0 +1,40 @@
+total 1
+total 1
+total 3
+total 3
+total 5
+total 5
+total 7
+total 7
+total 9
+total 9
+total 11
+0 Philo[1]Picked left fork
+0 Philo[1]Picked right fork
+0 Philo[1]is eating
+0 Philo[3]Picked left fork
+0 Philo[3]Picked right fork
+0 Philo[3]is eating
+0 Philo[5]Picked left fork
+0 Philo[5]Picked right fork
+0 Philo[5]is eating
+0 Philo[11]Picked left fork
+0 Philo[7]Picked left fork
+0 Philo[7]Picked right fork
+0 Philo[7]is eating
+0 Philo[9]Picked left fork
+0 Philo[9]Picked right fork
+0 Philo[9]is eating
+101 PHILO [10] HAS DEID
+total 11
+total 2
+total 2
+total 4
+total 4
+total 6
+total 6
+total 8
+total 8
+total 10
+total 11
+flags 1
